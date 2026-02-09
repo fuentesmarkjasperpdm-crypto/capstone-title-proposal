@@ -1,0 +1,28 @@
+{
+  "name": "kohisync-pos-inventory",
+  "version": "0.1.0",
+  "description": "KohiSync: A Web-Based Point of Sale and Inventory System with Kiosk Ordering Interface for Yambie Kōhī",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "init-db": "node scripts/init-db.js"
+  },
+  "keywords": [
+    "pos",
+    "point-of-sale",
+    "inventory",
+    "kiosk",
+    "cafe"
+  ],
+  "author": "Capstone Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "sqlite3": "^5.1.6",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.0"
+  }
+}

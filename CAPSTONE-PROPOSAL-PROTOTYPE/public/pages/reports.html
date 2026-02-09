@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KohiSync - Reports</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <h1>📊 Reports & Analytics</h1>
+        <div class="navbar-user">
+            <div class="user-info"><strong id="userFullName">User</strong></div>
+            <button class="navbar-user logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/pos">POS</a></li>
+                <li><a href="/inventory">Inventory</a></li>
+                <li><a href="/reports" class="active">Reports</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <!-- Daily Report -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Today's Summary</h2>
+                </div>
+                <div class="card-body">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Transactions</div>
+                            <div class="stat-value" id="dailyTransactions">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-value" id="dailyRevenue">₱0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Discounts</div>
+                            <div class="stat-value" id="dailyDiscounts">₱0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg Transaction</div>
+                            <div class="stat-value" id="avgTransaction">₱0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Top Selling Products (Last 7 Days)</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table" id="topProductsTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Quantity Sold</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProductsBody">
+                            <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Discount Analysis -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Discount Analysis (Last 30 Days)</h2>
+                </div>
+                <div class="card-body">
+                    <div id="discountSummary"></div>
+                    <table class="table" style="margin-top: 20px;">
+                        <thead>
+                            <tr>
+                                <th>Discount Type</th>
+                                <th>Times Used</th>
+                                <th>Total Amount</th>
+                                <th>Average</th>
+                            </tr>
+                        </thead>
+                        <tbody id="discountBreakdownBody">
+                            <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function initReports() {
+            const userResponse = await fetch('/api/auth/me');
+            const userData = await userResponse.json();
+            document.getElementById('userFullName').textContent = userData.user.full_name;
+
+            // Load daily report
+            const dailyResponse = await fetch('/api/reports/daily');
+            const dailyData = await dailyResponse.json();
+
+            document.getElementById('dailyTransactions').textContent = dailyData.total_transactions;
+            document.getElementById('dailyRevenue').textContent = `₱${dailyData.total_revenue.toFixed(2)}`;
+            document.getElementById('dailyDiscounts').textContent = `₱${dailyData.total_discounts.toFixed(2)}`;
+            document.getElementById('avgTransaction').textContent = `₱${dailyData.average_transaction}`;
+
+            // Load top products
+            const topResponse = await fetch('/api/reports/top-products?days=7');
+            const topData = await topResponse.json();
+
+            document.getElementById('topProductsBody').innerHTML = topData.top_products.map(p => `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.category}</td>
+                    <td>${p.total_quantity}</td>
+                    <td>₱${p.total_revenue.toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+            // Load discount report
+            const discountResponse = await fetch('/api/reports/discounts?days=30');
+            const discountData = await discountResponse.json();
+
+            document.getElementById('discountSummary').innerHTML = `
+                <div style="padding: 15px; background-color: #f5f5f5; border-radius: 5px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Total Discounts Given: <strong>₱${discountData.summary.total_discounts_given.toFixed(2)}</strong></span>
+                        <span>Discount Rate: <strong>${discountData.summary.discount_rate_percent}%</strong></span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('discountBreakdownBody').innerHTML = discountData.discount_breakdown.map(d => `
+                <tr>
+                    <td><strong>${d.discount_reason || 'Unknown'}</strong></td>
+                    <td>${d.usage_count}</td>
+                    <td>₱${d.total_discount_given.toFixed(2)}</td>
+                    <td>₱${d.avg_discount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        document.addEventListener('DOMContentLoaded', initReports);
+    </script>
+</body>
+</html>

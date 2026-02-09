@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KohiSync - Inventory</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <h1>📦 Inventory Management</h1>
+        <div class="navbar-user">
+            <div class="user-info"><strong id="userFullName">User</strong></div>
+            <button class="navbar-user logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/pos">POS</a></li>
+                <li><a href="/inventory" class="active">Inventory</a></li>
+                <li><a href="/reports">Reports</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Products</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Unit</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryBody">
+                            <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function initInventory() {
+            const userResponse = await fetch('/api/auth/me');
+            const userData = await userResponse.json();
+            document.getElementById('userFullName').textContent = userData.user.full_name;
+
+            const response = await fetch('/api/inventory');
+            const data = await response.json();
+
+            const tbody = document.getElementById('inventoryBody');
+            tbody.innerHTML = data.products.map(p => `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.category}</td>
+                    <td>${p.current_stock}</td>
+                    <td>${p.unit}</td>
+                    <td><span class="badge ${p.stock_status === 'low' ? 'badge-danger' : 'badge-success'}">
+                        ${p.stock_status === 'low' ? '⚠️ Low Stock' : '✓ OK'}
+                    </span></td>
+                    <td>₱${p.price.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        document.addEventListener('DOMContentLoaded', initInventory);
+    </script>
+</body>
+</html>

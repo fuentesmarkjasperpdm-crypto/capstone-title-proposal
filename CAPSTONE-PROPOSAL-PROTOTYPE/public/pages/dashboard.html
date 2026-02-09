@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KohiSync - Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h1>🍵 KohiSync Dashboard</h1>
+        <div class="navbar-user">
+            <div class="user-info">
+                <strong id="userFullName">User</strong>
+                <span id="userRole" style="font-size: 12px; opacity: 0.8;"></span>
+            </div>
+            <button class="navbar-user logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" class="active">Dashboard</a></li>
+                <li><a href="/pos">POS</a></li>
+                <li><a href="/inventory">Inventory</a></li>
+                <li><a href="/reports">Reports</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Welcome Section -->
+            <div class="card">
+                <h2>Welcome to KohiSync</h2>
+                <p>Your Point of Sale and Inventory Management System for Yambie Kōhī</p>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Today's Transactions</div>
+                    <div class="stat-value" id="todayTransactions">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Today's Revenue</div>
+                    <div class="stat-value" id="todayRevenue">₱0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Low Stock Items</div>
+                    <div class="stat-value" id="lowStockCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value" id="totalProducts">0</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" onclick="window.location.href='/pos'">
+                        ➕ New Transaction
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/kiosk'" style="margin-left: 10px;">
+                        🖥️ Open Kiosk
+                    </button>
+                    <button class="btn btn-warning" onclick="window.location.href='/inventory'" style="margin-left: 10px;">
+                        📦 Check Inventory
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Transactions</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Transaction #</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Amount</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactions">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Low Stock Alert -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>⚠️ Low Stock Alert</h2>
+                </div>
+                <div class="card-body">
+                    <div id="lowStockAlert">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

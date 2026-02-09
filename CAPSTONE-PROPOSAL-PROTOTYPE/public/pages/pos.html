@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KohiSync - POS</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h1>🍵 Point of Sale</h1>
+        <div class="navbar-user">
+            <div class="user-info">
+                <strong id="userFullName">User</strong>
+            </div>
+            <button class="navbar-user logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/pos" class="active">POS</a></li>
+                <li><a href="/inventory">Inventory</a></li>
+                <li><a href="/reports">Reports</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Kiosk Orders Notification (Top) -->
+            <div style="margin-bottom: 20px; position: relative;">
+                <div id="kioskOrders">
+                    <small style="color: #666;">Loading kiosk orders...</small>
+                </div>
+                <span id="kioskOrderBadge" style="position: absolute; top: -5px; right: 10px; background: #dc3545; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; display: none;"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Left: Menu -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Products</h2>
+                        </div>
+                        <div class="card-body">
+                            <div style="max-height: 500px; overflow-y: auto;">
+                                <div id="productList">Loading products...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Cart and Checkout -->
+                <div>
+                    <!-- Transaction Details -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Transaction</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Customer Name (Optional)</label>
+                                <input type="text" id="customerName" class="form-control" placeholder="Customer name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Cart</h2>
+                        </div>
+                        <div class="card-body">
+                            <div style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Price</th>
+                                            <th>Subtotal</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cartItems">
+                                        <tr><td colspan="5" class="text-center text-muted">Cart is empty</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Subtotal:</span>
+                                <strong id="subtotal">₱0.00</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Discount:</span>
+                                <strong id="discountDisplay">₱0.00</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 18px; padding-top: 10px; border-top: 2px solid #ccc;">
+                                <span>TOTAL:</span>
+                                <strong id="total">₱0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discount Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Apply Discount</h2>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-success" onclick="applyDiscount('senior_citizen')" style="width: 100%; margin-bottom: 10px;">👴 Senior Citizen (20%)</button>
+                            <button class="btn btn-success" onclick="applyDiscount('pwd')" style="width: 100%; margin-bottom: 10px;">♿ PWD (20%)</button>
+                            <button class="btn btn-success" onclick="applyDiscount('student')" style="width: 100%; margin-bottom: 10px;">🎓 Student (10%)</button>
+                            <button class="btn btn-warning" onclick="openDiscountModal()" style="width: 100%;">💰 Manual Discount</button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="card">
+                        <div class="card-body">
+                            <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;" onclick="proceedToPayment()">
+                                Proceed to Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="paymentModalTitle">Payment</h2>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px; padding: 15px; background-color: #f5f5f5; border-radius: 5px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Amount Due:</span>
+                        <strong id="amountDue">₱0.00</strong>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Amount Paid</label>
+                    <input type="number" id="amountPaid" class="form-control" placeholder="Enter amount" step="0.01">
+                </div>
+                <div style="padding: 15px; background-color: #f5f5f5; border-radius: 5px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Change:</span>
+                        <strong id="changeAmount">₱0.00</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closePaymentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmPayment()">Complete Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manual Discount</h2>
+                <button class="modal-close" onclick="closeDiscountModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Discount Amount (₱)</label>
+                    <input type="number" id="discountAmount" class="form-control" placeholder="Enter discount amount" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <input type="text" id="discountReason" class="form-control" placeholder="e.g., Promotional">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeDiscountModal()">Cancel</button>
+                <button class="btn btn-success" onclick="applyManualDiscount()">Apply Discount</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/pos.js"></script>
+</body>
+</html>

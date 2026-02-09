@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KohiSync - Customer Kiosk</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .kiosk-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            padding: 20px;
+        }
+
+        .kiosk-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .kiosk-header h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+
+        .kiosk-body {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .kiosk-menu {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .kiosk-cart {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            border-color: #8B4513;
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .menu-item .price {
+            color: #28a745;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .menu-item .stock-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #8B4513;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .kiosk-body {
+                grid-template-columns: 1fr;
+            }
+
+            .kiosk-cart {
+                position: relative;
+                top: 0;
+            }
+
+            .kiosk-header h1 {
+                font-size: 32px;
+            }
+
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <div class="kiosk-header">
+            <h1>🍵 Yambie Kōhī</h1>
+            <p>Welcome! Browse our menu and place your order</p>
+        </div>
+
+        <div class="kiosk-body">
+            <!-- Menu Section -->
+            <div class="kiosk-menu">
+                <h2>Menu</h2>
+
+                <h3 style="margin-top: 20px; color: #8B4513;">☕ Beverages</h3>
+                <div class="menu-grid" id="beverageList">Loading...</div>
+
+                <h3 style="margin-top: 20px; color: #8B4513;">🥐 Food & Pastries</h3>
+                <div class="menu-grid" id="foodList">Loading...</div>
+            </div>
+
+            <!-- Cart Section -->
+            <div class="kiosk-cart">
+                <h2>Your Order</h2>
+                <div id="cartItems" style="min-height: 200px;">
+                    <p class="text-muted">Cart is empty</p>
+                </div>
+
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">₱0.00</span>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 15px; font-size: 16px;" onclick="submitOrder()">
+                    Complete Order
+                </button>
+
+                <button class="btn btn-danger" style="width: 100%; margin-top: 10px; padding: 15px;" onclick="resetOrder()">
+                    Clear Cart
+                </button>
+
+                <p style="margin-top: 20px; font-size: 12px; color: #666; text-align: center;">
+                    After placing your order, proceed to the counter to pay.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Confirmed!</h2>
+                <button class="modal-close" onclick="closeConfirm()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="confirmContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="goToCounter()">Go to Counter to Pay</button>
+                <button class="btn" onclick="newOrder()">Place Another Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/kiosk.js"></script>
+</body>
+</html>
